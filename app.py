@@ -407,6 +407,8 @@ if btn_run:
         except Exception as e:
             st.warning(f"AI 对照组未能运行: {e}")
 
+        st.rerun()
+
 
 # ============================================================
 #  MAIN
