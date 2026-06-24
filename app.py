@@ -160,6 +160,16 @@ def get_active_matting():
         if white is None and mask is not None and proc is not None:
             white = cutout_solid(proc, mask, "white")
 
+        # 如果关键数据缺失，回退到传统方法
+        if mask is None or white is None:
+            return {
+                "proc": proc,
+                "mask": st.session_state.cleaned_mask,
+                "white_bgr": st.session_state.white_bgr,
+                "transparent": st.session_state.transparent_rgba,
+                "name": f"{choice} (数据不全，已回退传统)",
+            }
+
         return {
             "proc": proc,
             "mask": mask,
