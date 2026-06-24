@@ -356,21 +356,6 @@ with st.sidebar:
     st.caption("运行后即可使用全部界面")
 
     st.divider()
-    st.subheader("🔀 后续处理数据源")
-    # 可选方法列表
-    choice_options = ["传统方法"]
-    if st.session_state.ai_results:
-        choice_options += list(st.session_state.ai_results.keys())
-    if "pipeline_choice" not in st.session_state:
-        st.session_state.pipeline_choice = "传统方法"
-    # 确保默认值在选项中
-    if st.session_state.pipeline_choice not in choice_options:
-        st.session_state.pipeline_choice = "传统方法"
-    st.radio("选择抠图结果用于换背景/滤镜/调节",
-             choice_options, key="pipeline_choice")
-    st.caption("界面3、4将使用此处选择的结果")
-
-    st.divider()
     st.subheader("📏 GT Mask (可选)")
     gf = st.file_uploader("上传标准答案", type=["png", "jpg", "jpeg"], key="gt_up")
     if gf is not None:
@@ -407,8 +392,6 @@ if btn_run:
         except Exception as e:
             st.warning(f"AI 对照组未能运行: {e}")
 
-        st.rerun()
-
 
 # ============================================================
 #  MAIN
@@ -420,6 +403,14 @@ if st.session_state.img_bgr is None:
 st.title("🎨 人像抠图系统")
 img = st.session_state.img_bgr
 st.caption(f"当前图片: **{st.session_state.img_name}**  |  {img.shape[1]}×{img.shape[0]}")
+
+# 数据源选择器 (放主界面，确保在管线执行后渲染)
+choice_options = ["传统方法"]
+if st.session_state.ai_results:
+    choice_options += list(st.session_state.ai_results.keys())
+if st.session_state.get("pipeline_choice") not in choice_options:
+    st.session_state.pipeline_choice = "传统方法"
+st.radio("🔀 界面3/4 使用的抠图结果", choice_options, key="pipeline_choice", horizontal=True)
 
 t1, t2, t3, t4 = st.tabs(["📤 抠图导出", "🔬 AI对比分析", "🖼️ 背景与滤镜", "🎚️ 图像调节"])
 
