@@ -104,8 +104,8 @@ def mask_diff_viz(mask_a, mask_b, name_a="传统", name_b="AI"):
     only_a = (a == 1) & (b == 0)    # 仅传统 → 绿
     only_b = (a == 0) & (b == 1)    # 仅AI → 红
     viz[both] = (255, 255, 255)
-    viz[only_a] = (0, 255, 0)
-    viz[only_b] = (255, 0, 0)
+    viz[only_a] = (255, 0, 0)    # 仅传统 → 蓝色 (BGR)
+    viz[only_b] = (0, 0, 255)    # 仅AI → 红色 (BGR)
 
     total_fg = both.sum() + only_a.sum() + only_b.sum() + 1e-8
     legend = {
@@ -184,6 +184,7 @@ def init_state():
         "edit_bg_img": None, "edit_bg_result": None, "edit_filter_result": None,
         "adjust_result": None, "adjust_src": None,
         "pipeline_choice": "传统方法",
+        "reset_counter": 0,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -542,7 +543,7 @@ with t2:
                     else cv2.cvtColor(ai_mask_aligned, cv2.COLOR_BGR2GRAY)
                 st.image(ai_disp, clamp=True, use_container_width=True)
             with mc3:
-                st.caption("差异图 (白=一致 绿=仅传统 红=仅AI)")
+                st.caption("差异图 (白=一致 蓝=仅传统 红=仅AI)")
                 diff_viz, diff_legend = mask_diff_viz(trad_mask, ai_mask_aligned)
                 st.image(cv2.cvtColor(diff_viz, cv2.COLOR_BGR2RGB),
                          use_container_width=True)
@@ -855,21 +856,20 @@ with t4:
         adj_left, adj_right = st.columns([1, 2])
 
         with adj_left:
+            rid = st.session_state.reset_counter
             exposure = st.slider("曝光", -100, 100, 0, 1,
-                                 help="正值提亮，负值压暗", key="adj_exp")
+                                 help="正值提亮，负值压暗", key=f"adj_exp_{rid}")
             contrast = st.slider("对比度", 0.5, 2.0, 1.0, 0.05,
-                                 help=">1 增强对比，<1 降低对比", key="adj_con")
+                                 help=">1 增强对比，<1 降低对比", key=f"adj_con_{rid}")
             saturation = st.slider("饱和度", 0.0, 2.0, 1.0, 0.05,
-                                   help=">1 增饱和，<1 降饱和，0=黑白", key="adj_sat")
+                                   help=">1 增饱和，<1 降饱和，0=黑白", key=f"adj_sat_{rid}")
             sharpen_amt = st.slider("锐化强度", 0.0, 3.0, 0.0, 0.1,
-                                    help="0=不锐化，越大越锐", key="adj_shp")
+                                    help="0=不锐化，越大越锐", key=f"adj_shp_{rid}")
             apply_mode = st.radio("应用范围", ["仅人物", "全图"],
                                   label_visibility="collapsed", key="adj_mode")
 
             if st.button("↩ 重置参数", use_container_width=True):
-                for k in ["adj_exp", "adj_con", "adj_sat", "adj_shp"]:
-                    if k in st.session_state:
-                        del st.session_state[k]
+                st.session_state.reset_counter += 1
                 st.session_state.adjust_src = None
                 st.rerun()
 
