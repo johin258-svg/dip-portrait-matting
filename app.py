@@ -268,7 +268,7 @@ def run_ai_baselines():
     os.makedirs(tmpdir, exist_ok=True)
     tmp = os.path.join(tmpdir, f"{st.session_state.img_name}_input.png")
     imwrite(tmp, img)
-    results = run_all_baselines(tmp, tmpdir, methods=["rembg_human", "mediapipe"])
+    results = run_all_baselines(tmp, tmpdir, methods=["rembg_human"])
     # 为每个 AI 结果生成白底版 + 对齐后的 mask
     proc = st.session_state.proc_img
     for name, data in results.items():

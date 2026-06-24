@@ -6,10 +6,9 @@ numpy>=1.24.0
 Pillow>=10.0.0
 matplotlib>=3.7.0
 
-# OpenCV（Cloud推荐）
+# OpenCV (headless 避免 libGL 依赖)
 opencv-python-headless>=4.8.0
 
-# AI
+# AI对照 (只保留 rembg，mediapipe 自带完整版 opencv 会冲突)
 rembg>=2.0.0
-mediapipe>=0.10.0
 onnxruntime>=1.15.0
