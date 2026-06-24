@@ -867,10 +867,9 @@ with t4:
                                   label_visibility="collapsed", key="adj_mode")
 
             if st.button("↩ 重置参数", use_container_width=True):
-                st.session_state.adj_exp = 0
-                st.session_state.adj_con = 1.0
-                st.session_state.adj_sat = 1.0
-                st.session_state.adj_shp = 0.0
+                for k in ["adj_exp", "adj_con", "adj_sat", "adj_shp"]:
+                    if k in st.session_state:
+                        del st.session_state[k]
                 st.session_state.adjust_src = None
                 st.rerun()
 
