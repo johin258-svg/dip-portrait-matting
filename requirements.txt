@@ -1,0 +1,15 @@
+# Web
+streamlit>=1.28.0
+
+# 基础
+numpy>=1.24.0
+Pillow>=10.0.0
+matplotlib>=3.7.0
+
+# OpenCV（Cloud推荐）
+opencv-python-headless>=4.8.0
+
+# AI
+rembg>=2.0.0
+mediapipe>=0.10.0
+onnxruntime>=1.15.0
