@@ -144,6 +144,17 @@ def get_active_matting():
         }
     else:
         ai_data = st.session_state.ai_results.get(choice, {})
+        if not ai_data:
+            st.warning(f"调试: ai_results 中没有 '{choice}'，可用: {list(st.session_state.ai_results.keys())}")
+            # 回退传统
+            return {
+                "proc": proc,
+                "mask": st.session_state.cleaned_mask,
+                "white_bgr": st.session_state.white_bgr,
+                "transparent": st.session_state.transparent_rgba,
+                "name": f"{choice} (无数据，回退传统)",
+            }
+
         mask = ai_data.get("aligned_mask")
         if mask is None:
             mask = ai_data.get("mask")
@@ -151,6 +162,10 @@ def get_active_matting():
         transparent = ai_data.get("aligned_transparent")
         if transparent is None:
             transparent = ai_data.get("result")
+
+        st.write(f"调试: mask={type(mask).__name__} shape={mask.shape if mask is not None else 'None'}, "
+                 f"white={type(white).__name__ if white is not None else 'None'}, "
+                 f"proc={proc.shape if proc is not None else 'None'}")
 
         # 确保 mask 与 proc 对齐
         if mask is not None and proc is not None and mask.shape[:2] != proc.shape[:2]:
