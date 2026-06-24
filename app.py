@@ -390,12 +390,19 @@ if btn_run:
     if st.session_state.img_bgr is None:
         st.error("请先上传图片")
     else:
-        with st.spinner("传统方法 + AI 对照组运行中，请耐心等待..."):
+        with st.spinner("传统方法运行中..."):
             t0 = time.time()
             run_traditional_pipeline()
             st.session_state.trad_time = time.time() - t0
-            run_ai_baselines()
-            st.session_state.ai_time = time.time() - t0
+        st.success(f"传统方法完成 ({st.session_state.trad_time:.1f}s)")
+
+        with st.spinner("AI 对照组运行中 (首次需下载模型，约1分钟)..."):
+            try:
+                run_ai_baselines()
+                st.session_state.ai_time = time.time() - t0
+            except Exception as e:
+                st.warning(f"AI 对照组未能运行 (可能模型下载超时): {e}")
+                st.session_state.ai_results = None
         st.rerun()
 
 
