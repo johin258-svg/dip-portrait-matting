@@ -145,8 +145,6 @@ def get_active_matting():
     else:
         ai_data = st.session_state.ai_results.get(choice, {})
         if not ai_data:
-            st.warning(f"调试: ai_results 中没有 '{choice}'，可用: {list(st.session_state.ai_results.keys())}")
-            # 回退传统
             return {
                 "proc": proc,
                 "mask": st.session_state.cleaned_mask,
@@ -162,10 +160,6 @@ def get_active_matting():
         transparent = ai_data.get("aligned_transparent")
         if transparent is None:
             transparent = ai_data.get("result")
-
-        st.write(f"调试: mask={type(mask).__name__} shape={mask.shape if mask is not None else 'None'}, "
-                 f"white={type(white).__name__ if white is not None else 'None'}, "
-                 f"proc={proc.shape if proc is not None else 'None'}")
 
         # 确保 mask 与 proc 对齐
         if mask is not None and proc is not None and mask.shape[:2] != proc.shape[:2]:
@@ -210,6 +204,7 @@ def init_state():
         "adjust_result": None, "adjust_src": None,
         "pipeline_choice": "传统方法",
         "reset_counter": 0,
+        "_last_uploaded": None,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -327,7 +322,7 @@ with st.sidebar:
 
     if src == "上传图片":
         uf = st.file_uploader("选择照片", type=["jpg", "jpeg", "png", "bmp"])
-        if uf is not None:
+        if uf is not None and uf.name != st.session_state.get("_last_uploaded"):
             arr = np.frombuffer(uf.read(), np.uint8)
             bgr = cv2.imdecode(arr, cv2.IMREAD_COLOR)
             if bgr is not None:
@@ -348,6 +343,7 @@ with st.sidebar:
                           "adjust_result", "adjust_src"]:
                     st.session_state[k] = None
                 st.session_state.pipeline_choice = "传统方法"
+                st.session_state._last_uploaded = uf.name
                 st.success(f"✓ {uf.name}")
     else:
         tests = get_test_images()
